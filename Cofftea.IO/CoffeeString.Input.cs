@@ -156,7 +156,7 @@ namespace Cofftea.IO
         static void TryAutocompleteCommand(string command, bool shift)
         {
             if (repeatCount > 0) {
-                ReAutocompleteCommand(command, shift);
+                ReAutocompleteCommand(shift);
                 return;
             }
 
@@ -171,6 +171,7 @@ namespace Cofftea.IO
                     }
                 }   
             }
+            if (command.Length == 0) return;
             foreach (string s in autocompletions.Keys) {
                 if (s.StartsWith(command)) {
                     Autocomplete(s);
@@ -179,7 +180,7 @@ namespace Cofftea.IO
                 }
             }
         }
-        static void ReAutocompleteCommand(string command, bool shift)
+        static void ReAutocompleteCommand(bool shift)
         {
             int counter = -1;
             if (shift) repeatCount = Math.Max(repeatCount - 2, 0);
@@ -196,6 +197,7 @@ namespace Cofftea.IO
                 }
             }
 
+            if (lastCompleted.Length == 0) return;
             foreach (string item in autocompletions.Keys) {
                 if (item.StartsWith(lastCompleted)) {
                     counter++;
@@ -251,7 +253,7 @@ namespace Cofftea.IO
             for (; end < input.Length; ++end) {
                 if (input[end] == '"') break;
             }
-            PrintUnderCursor(input.ToString(begin, end - begin));
+
             input.Remove(begin, end - begin);
             pos -= end - begin;
             return begin;
@@ -417,9 +419,11 @@ namespace Cofftea.IO
         }
         private static void ClearCurrentInput()
         {
+            int top = Console.CursorTop;
             Console.CursorLeft = beginPos;
             Console.Write(new string(' ', Console.WindowWidth - beginPos));
             Console.CursorLeft = beginPos;
+            Console.CursorTop = top;
         }
         private static bool IsKeyAChar(char key)
         {

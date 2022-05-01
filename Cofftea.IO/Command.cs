@@ -71,6 +71,7 @@ namespace Cofftea.IO
                 if (flag2) sb.Append('"'); ;
                 sb.Append(Values[i]);
                 if (flag2) sb.Append('"');
+                sb.Append(' ');
             }
             RawLine = sb.ToString();
         }
