@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Cofftea.IO
 {
-    public class CoffeeString : IDisposable, IEquatable<CoffeeString>
+    public partial class CoffeeString : IDisposable, IEquatable<CoffeeString> //Output; Input - CoffeeString.Input.cs
     {
         struct Item
         {
@@ -45,10 +45,10 @@ namespace Cofftea.IO
                     PrintWithDelays();
                 }
 
-                Console.Write("\b");
-                if (Data.Count > 0 && !Data[Data.Count - 1].Text.EndsWith(Environment.NewLine)) {
-                    Console.WriteLine();
-                }
+                //Console.Write("\b");
+                //if (Data.Count > 0 && !Data[Data.Count - 1].Text.EndsWith(Environment.NewLine)) {
+                //    Console.WriteLine();
+                //}
             }
         }
         void PrintWithoutDelays()
@@ -158,6 +158,10 @@ namespace Cofftea.IO
             Console.ForegroundColor = color;
         }
         #region static Console Write
+        public static void WriteLine()
+        {
+            Console.WriteLine();
+        }
         public static void WriteLine(string text)
         {
             WriteLine(text, DefaultColor, 0, false, DefaultPrefixColor);
@@ -331,11 +335,7 @@ namespace Cofftea.IO
         }
         public override int GetHashCode()
         {
-            long sum = 0;
-            for (int i = 0; i < this.Data.Count; ++i) {
-                sum = (sum + Data[i].ToString().GetHashCode()) % int.MaxValue;
-            }
-            return (int)sum;
+            return string.Join("", from item in Data select item.Text).GetHashCode();
         }
 
         bool _disposed = false;

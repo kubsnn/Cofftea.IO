@@ -16,7 +16,7 @@ namespace Cofftea.IO
         {
             using var input = new Input();
             CoffeeString.Write(Prefix + " ", PrefixColor);
-            string line = Console.ReadLine();
+            string line = CoffeeString.ReadLine();
             return input.GetCommand(line);
         }
 
