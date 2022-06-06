@@ -7,15 +7,24 @@ using System.Linq;
 
 namespace Cofftea.IO
 {
-    public partial class CoffeeString
+    public partial class CoffeeString // Input; CoffeeString.cs - Output
     {
         public static Dictionary<string, List<string>> TempCommands { get; set; }
         static Dictionary<string, List<string>> autocompletions;
         static List<string> prevInput;
         static int prevInputPos;
         static StringBuilder input;
-        static int pos { get => Console.CursorLeft; set => Console.CursorLeft = value; }
+        static int pos { 
+            get { 
+                return (Console.CursorTop - beginTop) * Console.WindowWidth + Console.CursorLeft; 
+            } 
+            set {
+                Console.CursorTop = beginTop + value / Console.WindowWidth;
+                Console.CursorLeft = value % Console.WindowWidth;
+            } 
+        }
         static int top { get => Console.CursorTop; set => Console.CursorTop = value; }
+        static int beginTop;
         static int prevPos;
         static int beginPos;
         static int repeatCount;
@@ -395,8 +404,9 @@ namespace Cofftea.IO
             input = new StringBuilder();
             beginPos = Console.CursorLeft;
             prevPos = beginPos;
+            beginTop = Console.CursorTop;
             repeatCount = 0;
-            lastCompleted = String.Empty;
+            lastCompleted = string.Empty;
             prevInput.Remove("");
             prevInputPos = prevInput.Count;
             prevInput.Add("");
@@ -419,11 +429,19 @@ namespace Cofftea.IO
         }
         private static void ClearCurrentInput()
         {
-            int top = Console.CursorTop;
+            int linesCount = (input.Length + beginPos) / Console.WindowWidth + 1;
+            Console.CursorTop = beginTop + linesCount - 1;
+            while (linesCount > 1) {
+                Console.CursorLeft = 0;
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.CursorTop--;
+                linesCount--;
+            }
+
             Console.CursorLeft = beginPos;
             Console.Write(new string(' ', Console.WindowWidth - beginPos));
             Console.CursorLeft = beginPos;
-            Console.CursorTop = top;
+            Console.CursorTop = beginTop;
         }
         private static bool IsKeyAChar(char key)
         {
