@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -9,17 +10,15 @@ namespace Cofftea.IO
     {
         private List<int> data;
         private bool Error;
-
+        public delegate void Handler(Command cmd);
+        private Handler handler;
         public static string Prefix { get; set; } = ">";
         public static ConsoleColor PrefixColor { get; set; } = ConsoleColor.Gray;
-        public static Command ReadCommand()
+        
+        public Input(Handler handler)
         {
-            using var input = new Input();
-            CoffeeString.Write(Prefix + " ", PrefixColor);
-            string line = CoffeeString.ReadLine();
-            return input.GetCommand(line);
+            this.handler = handler;
         }
-
         public Command GetCommand(string line)
         {
             Error = false;
@@ -63,7 +62,7 @@ namespace Cofftea.IO
         {
             bool spaces = false;
             char end_char = (char)data[i];
-            if (end_char == '"' || end_char == '\'') {
+            if (end_char == '"' || end_char == '\'' || end_char == '%') {
                 spaces = true;
                 i++;
             }
@@ -86,7 +85,25 @@ namespace Cofftea.IO
                 }
             }
             i++;
+            if (end_char == '%') {
+                return GetCommandResult(GetCommand(sb.ToString()));
+            }
             return sb.ToString();
+        }
+        string GetCommandResult(Command cmd)
+        {
+            using var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream);
+            var std = Console.Out;
+            Console.SetOut(writer);
+            handler(cmd);
+            Console.SetOut(std);
+            writer.Flush();
+
+            var reader = new StreamReader(stream);
+            reader.BaseStream.Position = 0;
+            string output = reader.ReadToEnd().Replace("\r", "");
+            return output.EndsWith('\n') ? output[0..(output.Length - 1)] : output;
         }
         void SkipWhitespaces(ref int i)
         {
@@ -97,7 +114,6 @@ namespace Cofftea.IO
         {
             data.Clear();
         }
-
         public void Dispose()
         {
             ClearTemporaryVars();

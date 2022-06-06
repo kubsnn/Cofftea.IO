@@ -34,7 +34,15 @@ namespace Cofftea.IO
             autocompletions = new Dictionary<string, List<string>>();
             prevInput = new List<string>();
             TempCommands = new Dictionary<string, List<string>>();
+            Console.CancelKeyPress += (s, e) => {
+                e.Cancel = true;
+                CoffeeString.WriteLine("^C", ConsoleColor.Red);
+                sigint = true;
+                SendKey.SendEnter();
+            };
         }
+
+        static bool sigint = false;
         public static void AddHintElement(string command, string arg2hint)
         {
             if (!autocompletions.ContainsKey(command)) autocompletions.Add(command, new List<string>());
@@ -58,6 +66,11 @@ namespace Cofftea.IO
                 var key = ReadKey();
 
                 if (key.Key == ConsoleKey.Enter) break;
+
+                if (sigint) {
+                    sigint = false;
+                    return "";
+                }
 
                 var refresh = HandleKey(key);
 
