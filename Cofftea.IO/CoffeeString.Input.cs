@@ -472,10 +472,21 @@ namespace Cofftea.IO
 
             var cs = new CoffeeString();
             int i = 0;
-            var commandColor = input[0] == '.' ? ConsoleColor.Cyan : ConsoleColor.Yellow;
-            for (; i < input.Length; ++i) {
-                if (char.IsWhiteSpace(input[i])) break;
+            bool dot = input[0] == '.';
+            var commandColor = dot ? ConsoleColor.Cyan : ConsoleColor.Yellow;
+            if (dot && i + 1 < input.Length) i++;
+            if (input[i] != '"') {
+                for (; i < input.Length; ++i) {
+                    if (char.IsWhiteSpace(input[i])) break;
+                }
+            } else {
+                for (i++; i < input.Length; ++i) {
+                    if (input[i] == '"') {
+                        i++; break;
+                    }
+                }
             }
+
             cs.Add(input.ToString(0, i), commandColor);
 
             for (; i < input.Length; i++) {

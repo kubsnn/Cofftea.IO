@@ -14,7 +14,6 @@ namespace Cofftea.IO
         private Handler handler;
         public static string Prefix { get; set; } = ">";
         public static ConsoleColor PrefixColor { get; set; } = ConsoleColor.Gray;
-        
         public Input(Handler handler)
         {
             this.handler = handler;
@@ -56,11 +55,13 @@ namespace Cofftea.IO
                 args.RemoveAt(0);
             }
 
-            return new Command(_base, keys, values, args) { Error = this.Error };
+            return new Command(_base, keys, values, args) { Error = this.Error, RawLine = line };
         }
         string ReadArg(ref int i)
         {
             bool spaces = false;
+            bool dot = i == 0 && data[i] == '.';
+            if (dot && i < data.Count) i++;
             char end_char = (char)data[i];
             if (end_char == '"' || end_char == '\'' || end_char == '%') {
                 spaces = true;
@@ -68,6 +69,7 @@ namespace Cofftea.IO
             }
 
             var sb = new StringBuilder();
+            if (dot) sb.Append('.');
             for (; i < data.Count; ++i)
             {
                 if (data[i] == -1) {

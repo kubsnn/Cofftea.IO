@@ -13,7 +13,7 @@ namespace Cofftea.IO
         public List<string> Args { get; private set; }
 
         public bool Error { get; set; } = false;
-        public string RawLine { get; private set; }
+        public string RawLine { get; set; }
 
         public Command()
         {
