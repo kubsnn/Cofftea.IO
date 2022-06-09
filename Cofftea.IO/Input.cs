@@ -88,7 +88,7 @@ namespace Cofftea.IO
             }
             i++;
             if (end_char == '%') {
-                return GetCommandResult(GetCommand(sb.ToString()));
+                return GetCommandResult(new Input(handler).GetCommand(sb.ToString()));
             }
             return sb.ToString();
         }

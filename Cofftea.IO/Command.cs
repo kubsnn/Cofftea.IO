@@ -75,5 +75,23 @@ namespace Cofftea.IO
             }
             RawLine = sb.ToString();
         }
+        public override string ToString()
+        {
+            var sb = new StringBuilder(Base);
+            
+            for (int i = 0; i < Keys.Count && i < Values.Count; ++i) {
+                sb.Append(" ");
+                sb.Append(Keys[i]);
+                sb.Append("=");
+                sb.Append(Values[i]);
+            }
+
+            foreach (var arg in Args) {
+                sb.Append(" ");
+                sb.Append(arg);
+            }
+            
+            return sb.ToString();
+        }
     }
 }
