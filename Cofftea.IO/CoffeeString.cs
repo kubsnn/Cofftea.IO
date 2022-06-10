@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -90,13 +91,13 @@ namespace Cofftea.IO
         {
             PrintEnumerated(0);
         }
-        public void PrintEnumerated(int preSpacesCount, bool defaultColorOverride = false)
+        public void PrintEnumerated(int preSpacesCount, bool defaultColorOverride = false, bool hideLineNumber = false)
         {
             lock (printLock) {
                 if (InstantPrint) {
-                    PrintEnumeratedWithoutDelays(preSpacesCount, defaultColorOverride);
+                    PrintEnumeratedWithoutDelays(preSpacesCount, defaultColorOverride, hideLineNumber);
                 } else {
-                    PrintEnumeratedWithDelays(preSpacesCount, defaultColorOverride);
+                    PrintEnumeratedWithDelays(preSpacesCount, defaultColorOverride, hideLineNumber);
                 }
 
                 Console.Write("\b");
@@ -105,7 +106,7 @@ namespace Cofftea.IO
                 }
             }
         }
-        void PrintEnumeratedWithoutDelays(int spacesCount, bool defaultColor)
+        void PrintEnumeratedWithoutDelays(int spacesCount, bool defaultColor, bool hideLineNumber)
         {
             var color = Console.ForegroundColor;
             int maxlen = FastMath.Log10(Count);
@@ -120,7 +121,12 @@ namespace Cofftea.IO
                     var sb = new StringBuilder();
                     sb.Append(' ', spacesCount + maxlen - FastMath.Log10(counter));
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(sb.ToString() + counter + " ");
+                    if (!hideLineNumber) {
+                        Console.Write(sb.ToString() + counter + " ");
+                    } else {
+                        Console.Write(sb.ToString());
+                    }
+                    
                     begin = false;
                 }
                 if (defaultColor) Console.ForegroundColor = counter % 2 == 0 ? ConsoleColor.Gray : ConsoleColor.White;
@@ -135,7 +141,7 @@ namespace Cofftea.IO
             }
             Console.ForegroundColor = color;
         }
-        void PrintEnumeratedWithDelays(int spacesCount, bool defaultColor)
+        void PrintEnumeratedWithDelays(int spacesCount, bool defaultColor, bool hideLineNumber)
         {
             var color = Console.ForegroundColor;
             foreach (var item in this.Data) {
@@ -292,6 +298,21 @@ namespace Cofftea.IO
             this.Data.RemoveAt(index);
             return true;
         }
+        public static string RedirectOutputToString(Action action)
+        {
+            using var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream);
+            var std = Console.Out;
+            Console.SetOut(writer);
+            action();
+            Console.SetOut(std);
+            writer.Flush();
+
+            using var reader = new StreamReader(stream);
+            reader.BaseStream.Position = 0;
+            return reader.ReadToEnd();
+        }
+
         public bool IsEmpty => Data.Count <= 0;
         public int Count => Data.Count;
         public override string ToString()

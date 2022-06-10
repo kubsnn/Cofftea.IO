@@ -102,7 +102,7 @@ namespace Cofftea.IO
             Console.SetOut(std);
             writer.Flush();
 
-            var reader = new StreamReader(stream);
+            using var reader = new StreamReader(stream);
             reader.BaseStream.Position = 0;
             string output = reader.ReadToEnd().Replace("\r", "");
             return output.EndsWith('\n') ? output[0..(output.Length - 1)] : output;
